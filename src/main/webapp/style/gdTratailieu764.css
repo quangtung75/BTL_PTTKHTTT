@@ -102,3 +102,26 @@ button:hover {
 .total strong {
     color: #007bff;
 }
+
+/* Nút "Trả" */
+input[type="submit"] {
+    background-color: #4CAF50; /* Màu nền xanh */
+    color: white; /* Màu chữ trắng */
+    padding: 8px 12px; /* Khoảng cách bên trong */
+    border: none; /* Không có viền */
+    border-radius: 5px; /* Bo góc */
+    cursor: pointer; /* Con trỏ khi di chuột */
+    font-size: 14px; /* Kích thước chữ */
+    transition: background-color 0.3s; /* Hiệu ứng chuyển màu */
+}
+
+/* Hiệu ứng hover */
+input[type="submit"]:hover {
+    background-color: #45a049; /* Màu nền khi di chuột */
+}
+
+/* Hiệu ứng focus */
+input[type="submit"]:focus {
+    outline: none; /* Không có viền khi chọn */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Đổ bóng nhẹ khi chọn */
+}

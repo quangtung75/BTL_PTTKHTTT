@@ -24,7 +24,6 @@
 <%
     PhieuTra764 phieuTra = new PhieuTra764();
     phieuTra.setNgaytra(new Date());
-    phieuTra.setTongtienphat(0);
 
     ThanhVien764 nvtv = (ThanhVien764) session.getAttribute("nvtv");
     NhanVienThuVien764 nguoitiepnhan = new NhanVienThuVien764();
@@ -34,16 +33,84 @@
 
     List<TaiLieuMuon764> taiLieuChuaTra = null;
     BanDoc764 nguoitra = null;
+    String mathe = "";
+    Gson gson = new Gson();
 
-    String mathe = request.getParameter("mathe");
-    String banDocJsonEncoded = request.getParameter("banDocJson");
-    String banDocJson = java.net.URLDecoder.decode(banDocJsonEncoded, "UTF-8");
-    //String banDocJson = "{\"diemuytin\":10,\"id\":1,\"taiKhoan\":\"taiKhoan\",\"matKhau\":\"matKhau\",\"hoTen\":\"hoTen\",\"email\":\"email\",\"sdt\":\"sdt\",\"diaChi\":\"diaChi\",\"ghiChu\":\"ghiChu\",\"vaiTro\":\"vaiTro\"}";
-
-    if (banDocJson != null && !banDocJson.isEmpty()) {
-        Gson gson = new Gson();
+    String action = request.getParameter("action");
+    if((action == null)||(action.trim().length() ==0)) // goi tu trang Chon ban doc
+    {
+        mathe = request.getParameter("mathe");
+        session.setAttribute("mathe", mathe);
+        String banDocJsonEncoded = request.getParameter("banDocJson");
+        String banDocJson = java.net.URLDecoder.decode(banDocJsonEncoded, "UTF-8");
         nguoitra = gson.fromJson(banDocJson, BanDoc764.class);
         phieuTra.setNguoitra(nguoitra);
+        TaiLieuMuon764DAO taiLieuMuonDAO = new TaiLieuMuon764DAO();
+        taiLieuChuaTra = taiLieuMuonDAO.getTaiLieuMuonChuaTraTheoId(nguoitra.getId());
+        session.setAttribute("tailieuchuatra", taiLieuChuaTra);
+
+        phieuTra.setDsTra(new ArrayList<TaiLieuMuon764>());
+        session.setAttribute("phieutra", phieuTra);
+    }
+    else if(action.equalsIgnoreCase("xoa")) // goi tu trang nay
+    {
+        mathe = (String) session.getAttribute("mathe");
+        phieuTra = (PhieuTra764) session.getAttribute("phieutra");
+        nguoitra = phieuTra.getNguoitra();
+        taiLieuChuaTra = (List<TaiLieuMuon764>) session.getAttribute("tailieuchuatra");
+        String id = request.getParameter("id");
+        for(TaiLieuMuon764 taiLieuMuon : phieuTra.getDsTra()) {
+            if(taiLieuMuon.getId() == Integer.parseInt(id)) {
+                phieuTra.getDsTra().remove(taiLieuMuon);
+                taiLieuMuon.setPhieuphat(null);
+                taiLieuMuon.setTrangthai(false);
+                taiLieuMuon.setTinhtrangsau(-1);
+                taiLieuChuaTra.add(taiLieuMuon);
+                break;
+            }
+        }
+        session.setAttribute("phieutra", phieuTra);
+        session.setAttribute("tailieuchuatra", taiLieuChuaTra);
+    } else if(action.equalsIgnoreCase("them")) {
+        mathe = (String) session.getAttribute("mathe");
+        phieuTra = (PhieuTra764) session.getAttribute("phieutra");
+        nguoitra = phieuTra.getNguoitra();
+        taiLieuChuaTra = (List<TaiLieuMuon764>) session.getAttribute("tailieuchuatra");
+        String tailieuMuonJson = request.getParameter("tailieumuon");
+        gson = new GsonBuilder()
+                .setDateFormat("MMM dd, yyyy")
+                .create();
+        TaiLieuMuon764 taiLieuMuon = gson.fromJson(java.net.URLDecoder.decode(tailieuMuonJson, "UTF-8"), TaiLieuMuon764.class);
+
+        for(TaiLieuMuon764 tlm: taiLieuChuaTra) {
+            if(tlm.getId() == taiLieuMuon.getId()) {
+                taiLieuChuaTra.remove(tlm);
+                break;
+            }
+        }
+
+        int mucDoHuHai = Integer.parseInt(request.getParameter("mucdohuhai"));
+        float phiPhat = Float.parseFloat(request.getParameter("phiphat"));
+        int soNgayQuaHan = Integer.parseInt(request.getParameter("songayquahan"));
+
+        PhieuPhat764 phieuphat = new PhieuPhat764();
+        phieuphat.setTienphat(phiPhat);
+        phieuphat.setSongayquahan(soNgayQuaHan);
+
+        taiLieuMuon.setTinhtrangsau(taiLieuMuon.getTinhtrangbandau() - mucDoHuHai);
+        taiLieuMuon.setPhieuphat(phieuphat);
+        phieuTra.getDsTra().add(taiLieuMuon);
+        phieuTra.setTongtienphat(phieuTra.getTongtienphat() + phiPhat);
+
+        session.setAttribute("phieutra", phieuTra);
+        session.setAttribute("tailieuchuatra", taiLieuChuaTra);
+    }
+
+
+    //String banDocJson = "{\"diemuytin\":10,\"id\":1,\"taiKhoan\":\"taiKhoan\",\"matKhau\":\"matKhau\",\"hoTen\":\"hoTen\",\"email\":\"email\",\"sdt\":\"sdt\",\"diaChi\":\"diaChi\",\"ghiChu\":\"ghiChu\",\"vaiTro\":\"vaiTro\"}";
+    if(nguoitra != null && !mathe.isEmpty()) {
+
+
 %>
 <div class="info-bar">
     <p><strong>Thông tin người trả:</strong></p>
@@ -64,37 +131,6 @@
                 <th>Thao tác</th>
             </tr>
             <%
-                String action = request.getParameter("action");
-                if((action == null)||(action.trim().length() ==0)) // goi tu trang Chon ban doc
-                {
-                    TaiLieuMuon764DAO taiLieuMuonDAO = new TaiLieuMuon764DAO();
-                    taiLieuChuaTra = taiLieuMuonDAO.getTaiLieuMuonChuaTraTheoId(nguoitra.getId());
-                    session.setAttribute("tailieuchuatra", taiLieuChuaTra);
-
-                    phieuTra.setDsTra(new ArrayList<TaiLieuMuon764>());
-                    session.setAttribute("phieutra", phieuTra);
-                }
-                else if(action.equalsIgnoreCase("xoa")) // goi tu trang nay
-                {
-                    phieuTra = (PhieuTra764) session.getAttribute("phieutra");
-                    taiLieuChuaTra = (List<TaiLieuMuon764>) session.getAttribute("tailieuchuatra");
-                    String id = request.getParameter("id");
-                    for(TaiLieuMuon764 taiLieuMuon : phieuTra.getDsTra()) {
-                        if(taiLieuMuon.getId() == Integer.parseInt(id)) {
-                            phieuTra.getDsTra().remove(taiLieuMuon);
-                            taiLieuMuon.setPhieuphat(null);
-                            taiLieuMuon.setTrangthai(false);
-                            taiLieuMuon.setTinhtrangsau(-1);
-                            taiLieuChuaTra.add(taiLieuMuon);
-                            break;
-                        }
-                    }
-                    session.setAttribute("phieutra", phieuTra);
-                    session.setAttribute("tailieuchuatra", taiLieuChuaTra);
-                } else if(action.equalsIgnoreCase("them")) {
-
-                }
-
                 for (TaiLieuMuon764 taiLieuMuon : taiLieuChuaTra) {
             %>
             <tr>
@@ -105,7 +141,12 @@
                 <%
                     String taiLieuMuonJson = gson.toJson(taiLieuMuon);
                 %>
-                <td><button onclick="location.href='gdXulytienphat764.jsp?tailieumuon=<%=URLEncoder.encode(taiLieuMuonJson, "UTF-8")%>'">Trả</button></td>
+                <td>
+                    <form action="gdXulytienphat764.jsp" method="post">
+                        <input type="hidden" name="tailieumuon" value="<%= URLEncoder.encode(taiLieuMuonJson, "UTF-8") %>">
+                        <input type="submit" value="Trả">
+                    </form>
+                </td>
             </tr>
             <%} %>
         </table>
@@ -126,14 +167,17 @@
             <%
                 for(TaiLieuMuon764 taiLieuMuon : phieuTra.getDsTra()) {
                     int songayquahan = 0;
+                    if(taiLieuMuon.getNgayhentra().before(phieuTra.getNgaytra())) {
+                        songayquahan = (int) ((phieuTra.getNgaytra().getTime() - taiLieuMuon.getNgayhentra().getTime()) / (1000 * 60 * 60 * 24));
+                    }
             %>
             <tr>
                 <td><%=taiLieuMuon.getId()%></td>
                 <td><%=taiLieuMuon.getTailieu().getTen()%></td>
-                <td><%=taiLieuMuon.getId()%></td>
-                <td><%=taiLieuMuon.getTinhtrangsau() - taiLieuMuon.getTinhtrangbandau()%></td>
+                <td><%=songayquahan%></td>
+                <td><%=taiLieuMuon.getTinhtrangbandau()-taiLieuMuon.getTinhtrangsau()%></td>
                 <td><%=taiLieuMuon.getPhieuphat().getTienphat()%></td>
-                <tb><button onclick="location.href='gdTratailieu764.jsp?action=xoa&&id=<%=taiLieuMuon.getId()%>'">X</button></tb>
+                <td><button onclick="location.href='gdTratailieu764.jsp?action=xoa&&id=<%=taiLieuMuon.getId()%>'">X</button></td>
             </tr>
             <% } %>
         </table>

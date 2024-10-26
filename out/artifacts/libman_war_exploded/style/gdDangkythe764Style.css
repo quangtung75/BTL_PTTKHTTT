@@ -1,0 +1,62 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+h2 {
+    text-align: center; /* Canh giữa tiêu đề */
+}
+
+.container {
+    display: flex; /* Sử dụng flexbox để căn chỉnh bảng và form */
+    justify-content: space-between; /* Tạo khoảng cách giữa bảng và form */
+    margin-top: 20px;
+    padding: 30px; /* Tăng chiều cao container */
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    border-collapse: collapse;
+    width: 50%; /* Đặt chiều rộng bảng là 50% */
+    margin-right: 20px; /* Khoảng cách bên phải bảng */
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+form {
+    width: 45%; /* Đặt chiều rộng form là 45% */
+}
+
+#imgPreview {
+    width: 200px; /* Cố định chiều rộng khung ảnh */
+    height: 200px; /* Cố định chiều cao khung ảnh */
+    object-fit: cover; /* Cắt ảnh để vừa khung */
+    margin-top: 10px;
+    display: none; /* Ẩn ảnh mặc định */
+    border: 1px solid #ddd; /* Thêm viền cho khung ảnh */
+}
+
+button {
+    padding: 10px 15px; /* Khoảng cách trong nút bấm */
+    background-color: #4CAF50; /* Màu nền nút bấm */
+    color: white; /* Màu chữ */
+    border: none; /* Không có viền */
+    border-radius: 5px; /* Bo góc */
+    cursor: pointer; /* Con trỏ chuột khi hover */
+}
+
+button:hover {
+    background-color: #45a049; /* Màu nền khi hover */
+}

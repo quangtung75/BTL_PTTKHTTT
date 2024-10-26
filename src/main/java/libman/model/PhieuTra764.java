@@ -40,7 +40,17 @@ public class PhieuTra764 {
     }
 
     public float getTongtienphat() {
-        return tongtienphat;
+        float tongTienPhat = 0.0f;
+
+        if (dsTra != null) {
+            for (TaiLieuMuon764 taiLieu : dsTra) {
+                if (taiLieu.getPhieuphat() != null) {
+                    tongTienPhat += taiLieu.getPhieuphat().getTienphat();
+                }
+            }
+        }
+
+        return tongTienPhat;
     }
 
     public void setTongtienphat(float tongtienphat) {

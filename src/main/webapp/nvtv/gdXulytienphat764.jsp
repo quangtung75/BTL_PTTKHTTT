@@ -60,6 +60,9 @@
             // Tính tổng tiền phạt
             let tongTienPhat = (soNgayQuaHan * tienPhatTrenNgay) + (mucDoHuHai * tienPhatHuHong);
             document.getElementById("tongTienPhat").innerText = tongTienPhat.toFixed(2) + " VNĐ";
+
+            document.getElementById("phiphat").value = tongTienPhat.toFixed(2);
+            document.getElementById("mucdohuhai").value = mucDoHuHai;
         }
     </script>
 </head>
@@ -83,8 +86,8 @@
         <h4>Xử lý tiền phạt</h4>
         <label for="tinhTrangLucSau">Tình trạng lúc sau:</label>
         <select id="tinhTrangLucSau" onchange="tinhTienPhat()">
-            <% for (int i = 0; i <= 10; i++) { %>
-            <option value="<%= i %>" <%= i == 10 ? "selected" : "" %>><%= i %></option>
+            <% for (int i = 0; i <= taiLieuMuon.getTinhtrangbandau(); i++) { %>
+            <option value="<%= i %>" <%= i == taiLieuMuon.getTinhtrangbandau() ? "selected" : "" %>><%= i %></option>
             <% } %>
         </select>
         <br><br>
@@ -101,18 +104,15 @@
         <span id="tongTienPhat"><%= (soNgayQuaHan * 5000)%> VNĐ</span>
         <br><br>
 
-        <button onclick="capNhatThongTin()">Tiếp tục</button>
+        <form id="updateForm" action="gdTratailieu764.jsp" method="post">
+            <input type="hidden" name="action" value="them">
+            <input type="hidden" name="tailieumuon" value="<%= URLEncoder.encode(gson.toJson(taiLieuMuon), "UTF-8") %>">
+            <input type="hidden" name="songayquahan" value="<%= soNgayQuaHan %>">
+            <input type="hidden" name="mucdohuhai" id="mucdohuhai" value="0">
+            <input type="hidden" name="phiphat" id="phiphat" value="<%= (soNgayQuaHan * 5000) %>">
+            <button type="submit">Tiếp tục</button>
+        </form>
     </div>
 </div>
-<script>
-    function capNhatThongTin() {
-        let mucDoHuHai = parseInt(document.getElementById("tinhTrangLucSau").value);
-        let phiPhat = parseFloat(document.getElementById("tongTienPhat").innerText.replace(" VNĐ", ""));
-        let soNgayQuaHan = <%= soNgayQuaHan %>; // Giả sử bạn đã định nghĩa biến này trong JSP
-
-        let tailieuMuonJson = <%= URLEncoder.encode(gson.toJson(taiLieuMuon), "UTF-8") %>;
-        location.href = 'gdTratailieu764.jsp?action=them&tailieumuon=' + tailieuMuonJson + '&tinhtrangsau=' + mucDoHuHai + '&phiphatsau=' + phiPhat + '&songayquahan=' + soNgayQuaHan;
-    }
-</script>
 </body>
 </html>

@@ -125,3 +125,99 @@ input[type="submit"]:focus {
     outline: none; /* Không có viền khi chọn */
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); /* Đổ bóng nhẹ khi chọn */
 }
+
+#paymentModal {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%; /* Full width to cover the area */
+    height: 100%; /* Full height to cover the area */
+    background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+    z-index: 1000; /* Ensure it appears above other elements */
+}
+
+.modal-content {
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);   
+}
+
+
+.modal-content h3 {
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.modal-content p {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Nút trong modal */
+.modal-content button {
+    padding: 10px 15px;
+    margin: 5px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.modal-content button:first-of-type {
+    background-color: #4CAF50; /* Nút hoàn tất thanh toán */
+    color: #fff;
+}
+
+.modal-content button:first-of-type:hover {
+    background-color: #45a049;
+}
+
+.modal-content button:last-of-type {
+    background-color: #f44336; /* Nút hủy */
+    color: #fff;
+}
+
+.modal-content button:last-of-type:hover {
+    background-color: #d32f2f;
+}
+
+/* Thông báo kết quả lưu */
+.resultSave {
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.resultSave p {
+    font-weight: bold;
+}
+
+/* Nút OK trong thông báo */
+.resultSave button {
+    background-color: #007bff;
+    color: #fff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.resultSave button:hover {
+    background-color: #0056b3;
+}

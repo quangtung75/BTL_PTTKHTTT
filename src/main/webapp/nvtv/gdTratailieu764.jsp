@@ -6,7 +6,8 @@
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="java.util.Date" %>
 <%@ page import="libman.model.*" %>
-<%@ page import="com.google.gson.GsonBuilder" %><%--
+<%@ page import="com.google.gson.GsonBuilder" %>
+<%@ page import="libman.dao.PhieuTra764DAO" %><%--
   Created by IntelliJ IDEA.
   User: vongn
   Date: 10/25/2024
@@ -24,6 +25,7 @@
 <%
     PhieuTra764 phieuTra = new PhieuTra764();
     phieuTra.setNgaytra(new Date());
+    Boolean resultSave = null;
 
     ThanhVien764 nvtv = (ThanhVien764) session.getAttribute("nvtv");
     NhanVienThuVien764 nguoitiepnhan = new NhanVienThuVien764();
@@ -99,11 +101,22 @@
 
         taiLieuMuon.setTinhtrangsau(taiLieuMuon.getTinhtrangbandau() - mucDoHuHai);
         taiLieuMuon.setPhieuphat(phieuphat);
+        taiLieuMuon.setTrangthai(true);
         phieuTra.getDsTra().add(taiLieuMuon);
         phieuTra.setTongtienphat(phieuTra.getTongtienphat() + phiPhat);
 
         session.setAttribute("phieutra", phieuTra);
         session.setAttribute("tailieuchuatra", taiLieuChuaTra);
+    } else if("paymentComplete".equals(request.getParameter("action"))) {
+        mathe = (String) session.getAttribute("mathe");
+        phieuTra = (PhieuTra764) session.getAttribute("phieutra");
+        nguoitra = phieuTra.getNguoitra();
+        taiLieuChuaTra = (List<TaiLieuMuon764>) session.getAttribute("tailieuchuatra");
+        // Gọi DAO để lưu phiếu trả
+        PhieuTra764DAO phieuTraDAO = new PhieuTra764DAO();
+        boolean result = phieuTraDAO.luuPhieuTra(phieuTra);
+
+        resultSave = result;
     }
 
 
@@ -177,7 +190,13 @@
                 <td><%=songayquahan%></td>
                 <td><%=taiLieuMuon.getTinhtrangbandau()-taiLieuMuon.getTinhtrangsau()%></td>
                 <td><%=taiLieuMuon.getPhieuphat().getTienphat()%></td>
-                <td><button onclick="location.href='gdTratailieu764.jsp?action=xoa&&id=<%=taiLieuMuon.getId()%>'">X</button></td>
+                <td>
+                    <form action="gdTratailieu764.jsp" method="post">
+                        <input type="hidden" name="action" value="xoa">
+                        <input type="hidden" name="id" value="<%=taiLieuMuon.getId()%>">
+                        <button type="submit">X</button>
+                    </form>
+                </td>
             </tr>
             <% } %>
         </table>
@@ -185,7 +204,41 @@
         <div class="total">
             <strong>Tổng tiền phạt:</strong><%= phieuTra.getTongtienphat()%>  VNĐ
         </div>
-        <button style="margin-top: 8px">Xác nhận</button>
+        <button onclick="showModal()" style="margin-top: 8px">Xác nhận</button>
+        <!-- Modal xác nhận thanh toán -->
+        <div id="paymentModal" style="display:none;">
+            <div class="modal-content">
+                <h3>Xác nhận thanh toán</h3>
+                <p>Tổng tiền phạt: <%= phieuTra.getTongtienphat() %> VNĐ</p>
+                <p>Yêu cầu bạn đọc thanh toán để tiếp tục.</p>
+                <button onclick="submitPayment()">Hoàn tất thanh toán</button>
+                <button onclick="closeModal()">Hủy</button>
+            </div>
+        </div>
+        <!-- Hiển thị kết quả lưu phiếu trả -->
+        <% if (resultSave!= null && resultSave) { %>
+        <div class="resultSave">
+            <p>Lưu thông tin trả thành công!</p>
+            <%
+
+            %>
+            <form action="gdXemphieutra764.jsp" method="post">
+                <input type="hidden" name="phieutra" value="<%= URLEncoder.encode(gson.toJson(phieuTra), "UTF-8") %>">
+                <button type="submit">OK</button>
+            </form>
+        </div>
+        <% } else if(resultSave!= null) {%>
+        <div class="resultSave">
+            <p>Lưu thông tin thất bại, vui lòng thử lại!</p>
+            <form action="gdChonbandoc764.jsp">
+                <button type="submit">OK</button>
+            </form>
+        </div>
+        <%}%>
+        <!-- Form thanh toán gửi lại JSP -->
+        <form id="paymentForm" action="gdTratailieu764.jsp" method="post">
+            <input type="hidden" name="action" value="paymentComplete">
+        </form>
     </div>
 </div>
 <%
@@ -198,5 +251,16 @@
 <%
     }
     %>
+<script>
+    function showModal() {
+        document.getElementById("paymentModal").style.display = "block";
+    }
+    function closeModal() {
+        document.getElementById("paymentModal").style.display = "none";
+    }
+    function submitPayment() {
+        document.getElementById("paymentForm").submit();
+    }
+</script>
 </body>
 </html>
